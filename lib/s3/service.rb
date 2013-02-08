@@ -3,7 +3,7 @@ module S3
     include Parser
     include Proxies
 
-    attr_reader :access_key_id, :secret_access_key, :use_ssl, :proxy
+    attr_reader :access_key_id, :secret_access_key, :use_ssl, :proxy, :service_host
 
     # Compares service to other, by <tt>access_key_id</tt> and
     # <tt>secret_access_key</tt>
@@ -22,12 +22,15 @@ module S3
     #   (false by default)
     # * <tt>:timeout</tt> - Timeout to use by the Net::HTTP object
     #   (60 by default)
+    # * <tt>:service_host</tt> - Custom host for the service. e.g. "commondatastorage.googleapis.com"
+    #   (s3.amazonaws.com by default)
     def initialize(options)
       @access_key_id = options.fetch(:access_key_id)
       @secret_access_key = options.fetch(:secret_access_key)
       @use_ssl = options.fetch(:use_ssl, false)
       @timeout = options.fetch(:timeout, 60)
       @debug = options.fetch(:debug, false)
+      @service_host = options.fetch(:service_host, HOST)
 
       raise ArgumentError, "Missing proxy settings. Must specify at least :host." if options[:proxy] && !options[:proxy][:host]
       @proxy = options.fetch(:proxy, nil)

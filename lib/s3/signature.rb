@@ -76,14 +76,17 @@ module S3
     #   the resource, defaults to GET
     # * <tt>:headers</tt> - Any additional HTTP headers you intend
     #   to use when requesting the resource
+    # * <tt>:service_host</tt> - Custom host for the service. e.g. "commondatastorage.googleapis.com"
+    #   (s3.amazonaws.com by default)
     def self.generate_temporary_url(options)
       bucket = options[:bucket]
       resource = options[:resource]
       access_key = options[:access_key]
       expires = options[:expires_at].to_i
+      service_host = options[:service_host] || ::S3::HOST
       signature = generate_temporary_url_signature(options)
 
-      url = "http://#{S3::HOST}/#{bucket}/#{resource}"
+      url = "http://#{service_host}/#{bucket}/#{resource}"
       url << "?AWSAccessKeyId=#{access_key}"
       url << "&Expires=#{expires}"
       url << "&Signature=#{signature}"
@@ -209,7 +212,14 @@ module S3
       # requests that don't address a bucket, do nothing. For more
       # information on virtual hosted-style requests, see Virtual
       # Hosting of Buckets.
-      bucket_name = host.sub(/\.?#{S3::HOST}\Z/, "")
+      # bucket_name = host.sub(/\.?#{S3::HOST}\Z/, "")
+
+      # The above line is commented because:
+      # Projects using multiple providers like AWS S3 and Google Cloud Storage, can't redefine
+      # S3::HOST on the fly. So we would have to handle all possible providers here.
+      bucket_name = host.sub(/\.?s3\.amazonaws\.com\Z/, "")
+      host = bucket_name.sub(/\.?commondatastorage\.googleapis\.com\Z/, "")
+
       string << "/#{bucket_name}" unless bucket_name.empty?
 
       # 3. Append the path part of the un-decoded HTTP Request-URI,
