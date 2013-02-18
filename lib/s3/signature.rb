@@ -218,7 +218,7 @@ module S3
       # Projects using multiple providers like AWS S3 and Google Cloud Storage, can't redefine
       # S3::HOST on the fly. So we would have to handle all possible providers here.
       bucket_name = host.sub(/\.?s3\.amazonaws\.com\Z/, "")
-      host = bucket_name.sub(/\.?commondatastorage\.googleapis\.com\Z/, "")
+      bucket_name = bucket_name.sub(/\.?commondatastorage\.googleapis\.com\Z/, "")
 
       string << "/#{bucket_name}" unless bucket_name.empty?
 
